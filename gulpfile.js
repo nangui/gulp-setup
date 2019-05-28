@@ -3,6 +3,7 @@ const browserSync = require('browser-sync').create();
 const sass = require('gulp-sass');
 const minifyCSS = require('gulp-csso');
 const concat = require('gulp-concat');
+const imagemin = require('gulp-imagemin');
 
 function style() {
   return src([
@@ -27,6 +28,13 @@ function js() {
   .pipe(browserSync.stream());
 }
 
+function image() {
+  return src('src/img/**/*')
+  .pipe(imagemin())
+  .pipe(dest('src/imgmin'))
+  .pipe(browserSync.stream());
+}
+
 function watchFile() {
   browserSync.init({
     server: {
@@ -35,10 +43,12 @@ function watchFile() {
     browser: 'chrome'
   });
   watch('./src/scss/**/*.scss', style);
+  watch('./src/img/**/*', image);
   watch('./src/**/*.html').on('change', browserSync.reload);
   watch('./src/js/**/*.js').on('change', browserSync.reload);
 }
 
 exports.style = style;
 exports.js = js;
-exports.watchFile = parallel(js, style, watchFile);
+exports.image = image;
+exports.watchFile = parallel(js, style, image, watchFile);
